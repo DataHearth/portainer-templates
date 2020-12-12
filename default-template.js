@@ -1,3 +1,5 @@
+// * Default Portainer-CE templates definitions: https://raw.githubusercontent.com/portainer/templates/master/templates-2.0.json
+
 const dockerTemplate = {
   "types": 1, // ! Mandatory
   "title": "Title of the template", // ! Mandatory
@@ -11,7 +13,7 @@ const dockerTemplate = {
   "env": [ // ? Optional
     {
       "name": "Name of the variable", // ! Mandatory
-      "label": "Label for the UI", // ! Mandatory unless set is present
+      "label": "Label for the UI", // ! Mandatory unless preset is present
       "description": "Description for the UI", // ? Optional
       "default": "Default value", // ? Optional
       "preset": false, // ? Optional : if false => UI will generate an input
@@ -80,4 +82,4 @@ const stackTemplate = {
   "note": "Note about the template", // ? Optional
   "platform": "linux | windows", // ? Optional
   "categories": ["category name"] // ? Optional
-}
+};

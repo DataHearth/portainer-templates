@@ -1,0 +1,39 @@
+{
+  "version": "2",
+  "templates": [
+    {
+      "types": 1,
+      "title": "Elasticsearch",
+      "description": "Elasticsearch is a search engine based on the Lucene library. It provides a distributed, multitenant-capable full-text search engine with an HTTP web interface and schema-free JSON documents. Elasticsearch is developed in Java.",
+      "image": "elasticsearch/elasticsearch:7.10.1",
+      "administrator_only": false,
+      "name": "Elasticsearch",
+      "logo": "https://dwglogo.com/wp-content/uploads/2017/09/2100px-Elasticsearch_logo.png",
+      "registry": "docker.elastic.co",
+      "env": [
+        {
+          "name": "discovery.type",
+          "default": "single-node",
+          "preset": true
+        }
+      ],
+      "network": "bridge",
+      "volumes": [
+        {
+          "container": "/usr/share/elasticsearch/data",
+          "bind": "/mnt/user/appdata/elasticsearch/data",
+          "readonly": false
+        }
+      ],
+      "ports": [
+        "9200:9200/tcp",
+        "9300:9300/tcp"
+      ],
+      "restart_policy": "always",
+      "hostname": "elasticsearch",
+      "note": "To change elasticsearch version, change the image version in the template",
+      "platform": "linux",
+      "categories": ["database", "NoSQL"]
+    }
+  ]
+}
