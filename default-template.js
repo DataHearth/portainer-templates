@@ -1,7 +1,7 @@
 // * Default Portainer-CE templates definitions: https://raw.githubusercontent.com/portainer/templates/master/templates-2.0.json
 
 const dockerTemplate = {
-  "types": 1, // ! Mandatory
+  "type": 1, // ! Mandatory
   "title": "Title of the template", // ! Mandatory
   "description": "Template description", // ! Mandatory
   "image": "Docker image", // ! Mandatory
