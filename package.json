@@ -1,0 +1,35 @@
+{
+  "name": "portainer-templates",
+  "version": "0.0.1",
+  "description": "Server to serve custom templates for Portainer-CE",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DataHearth/portainer-templates.git"
+  },
+  "keywords": [
+    "portainer",
+    "templates",
+    "server",
+    "serve"
+  ],
+  "author": "Antoine \"DataHearth\" Langlois",
+  "license": "SEE LICENSE IN LICENSE",
+  "bugs": {
+    "url": "https://github.com/DataHearth/portainer-templates/issues"
+  },
+  "homepage": "https://github.com/DataHearth/portainer-templates#readme",
+  "dependencies": {
+    "@koa/router": "^10.0.0",
+    "joi": "^17.3.0",
+    "koa": "^2.13.0"
+  },
+  "devDependencies": {
+    "eslint": "^7.15.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-plugin-import": "^2.22.1"
+  }
+}
