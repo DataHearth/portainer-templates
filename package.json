@@ -4,7 +4,7 @@
   "description": "Server to serve custom templates for Portainer-CE",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node app.js"
   },
   "repository": {
     "type": "git",
@@ -23,9 +23,12 @@
   },
   "homepage": "https://github.com/DataHearth/portainer-templates#readme",
   "dependencies": {
+    "@hapi/boom": "^9.1.0",
     "@koa/router": "^10.0.0",
     "joi": "^17.3.0",
-    "koa": "^2.13.0"
+    "koa": "^2.13.0",
+    "koa-morgan": "^1.0.1",
+    "winston": "^3.3.3"
   },
   "devDependencies": {
     "eslint": "^7.15.0",
