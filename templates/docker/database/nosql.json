@@ -1,0 +1,69 @@
+{
+  "templates": [
+    {
+      "type": 1,
+      "title": "Elasticsearch",
+      "description": "Elasticsearch is a search engine based on the Lucene library. It provides a distributed, multitenant-capable full-text search engine with an HTTP web interface and schema-free JSON documents. Elasticsearch is developed in Java.",
+      "image": "elasticsearch/elasticsearch:7.10.1",
+      "name": "Elasticsearch",
+      "logo": "https://dwglogo.com/wp-content/uploads/2017/09/2100px-Elasticsearch_logo.png",
+      "registry": "docker.elastic.co",
+      "env": [
+        {
+          "name": "discovery.type",
+          "default": "single-node",
+          "preset": true
+        }
+      ],
+      "volumes": [
+        {
+          "container": "/usr/share/elasticsearch/data",
+          "bind": "/mnt/user/appdata/elasticsearch/data",
+          "readonly": false
+        }
+      ],
+      "ports": [
+        "9200:9200/tcp",
+        "9300:9300/tcp"
+      ],
+      "hostname": "elasticsearch",
+      "note": "To change elasticsearch version, change the image version in the template",
+      "platform": "linux",
+      "categories": ["database", "NoSQL"]
+    },
+    {
+			"type": 1,
+			"title": "Mongo",
+			"description": "Open-source document-oriented database",
+			"categories": [
+				"database"
+			],
+			"platform": "linux",
+			"logo": "https://portainer-io-assets.sfo2.digitaloceanspaces.com/logos/mongo.png",
+			"image": "mongo:latest",
+			"ports": [
+				"27017/tcp"
+			],
+			"volumes": [{
+				"container": "/data/db"
+			}]
+    },
+    {
+			"type": 1,
+			"title": "Redis",
+			"description": "Open-source in-memory data structure store",
+			"categories": [
+				"database"
+			],
+			"platform": "linux",
+			"logo": "https://portainer-io-assets.sfo2.digitaloceanspaces.com/logos/redis.png",
+			"image": "redis:latest",
+			"ports": [
+				"6379/tcp"
+			],
+			"volumes": [{
+				"container": "/data"
+			}]
+		}
+  ]
+}

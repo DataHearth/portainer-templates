@@ -1,0 +1,89 @@
+{
+  "templates": [
+    {
+      "type": 1,
+      "title": "Odoo",
+      "description": "Open-source business apps",
+      "categories": [
+        "project-management"
+      ],
+      "platform": "linux",
+      "logo": "https://portainer-io-assets.sfo2.digitaloceanspaces.com/logos/odoo.png",
+      "image": "odoo:latest",
+      "env": [
+        {
+          "name": "HOST",
+          "label": "PostgreSQL database host",
+          "type": "container"
+        },
+        {
+          "name": "USER",
+          "label": "Database user"
+        },
+        {
+          "name": "PASSWORD",
+          "label": "Database password"
+        }
+      ],
+      "ports": [
+        "8069/tcp"
+      ],
+      "volumes": [
+        {
+          "container": "/var/lib/odoo"
+        },
+        {
+          "container": "/mnt/extra-addons"
+        }
+      ]
+    },
+    {
+      "type": 1,
+      "title": "Gitlab CE",
+      "description": "Open-source end-to-end software development platform",
+      "note": "Default username is <b>root</b>. Check the <a href=\"https://docs.gitlab.com/omnibus/docker/README.html#after-starting-a-container\" target=\"_blank\">Gitlab documentation</a> to get started.",
+      "categories": [
+        "development",
+        "project-management"
+      ],
+      "platform": "linux",
+      "logo": "https://portainer-io-assets.sfo2.digitaloceanspaces.com/logos/gitlab_ce.png",
+      "image": "gitlab/gitlab-ce:latest",
+      "ports": [
+        "80/tcp",
+        "443/tcp",
+        "22/tcp"
+      ],
+      "volumes": [
+        {
+          "container": "/etc/gitlab"
+        },
+        {
+          "container": "/var/log/gitlab"
+        },
+        {
+          "container": "/var/opt/gitlab"
+        }
+      ]
+    },
+    {
+      "type": 1,
+      "title": "Redmine",
+      "description": "Open-source project management tool",
+      "categories": [
+        "project-management"
+      ],
+      "platform": "linux",
+      "logo": "https://portainer-io-assets.sfo2.digitaloceanspaces.com/logos/redmine.png",
+      "image": "redmine:latest",
+      "ports": [
+        "3000/tcp"
+      ],
+      "volumes": [
+        {
+          "container": "/usr/src/redmine/files"
+        }
+      ]
+    }
+  ]
+}

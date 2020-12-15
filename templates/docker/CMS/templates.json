@@ -1,0 +1,145 @@
+{
+  "templates": [
+		{
+			"type": 1,
+			"title": "Plesk",
+			"description": "WebOps platform and hosting control panel",
+			"categories": [
+				"CMS"
+			],
+			"platform": "linux",
+			"note": "Default credentials: admin / changeme",
+			"logo": "https://portainer-io-assets.sfo2.digitaloceanspaces.com/logos/plesk.png",
+			"image": "plesk/plesk:latest",
+			"ports": [
+				"21/tcp",
+				"80/tcp",
+				"443/tcp",
+				"8880/tcp",
+				"8443/tcp",
+				"8447/tcp"
+			]
+    },
+    {
+			"type": 1,
+			"title": "Joomla",
+			"description": "Another free and open-source CMS",
+			"categories": [
+				"CMS"
+			],
+			"platform": "linux",
+			"logo": "https://portainer-io-assets.sfo2.digitaloceanspaces.com/logos/joomla.png",
+			"image": "joomla:latest",
+			"env": [{
+					"name": "JOOMLA_DB_HOST",
+					"label": "MySQL database host",
+					"type": "container"
+				},
+				{
+					"name": "JOOMLA_DB_PASSWORD",
+					"label": "Database password"
+				}
+			],
+			"ports": [
+				"80/tcp"
+			],
+			"volumes": [{
+				"container": "/var/www/html"
+			}]
+    },
+    {
+			"type": 1,
+			"title": "Drupal",
+			"description": "Open-source content management framework",
+			"categories": [
+				"CMS"
+			],
+			"platform": "linux",
+			"logo": "https://portainer-io-assets.sfo2.digitaloceanspaces.com/logos/drupal.png",
+			"image": "drupal:latest",
+			"ports": [
+				"80/tcp"
+			],
+			"volumes": [{
+				"container": "/var/www/html"
+			}]
+    },
+    {
+      "type": 1,
+      "title": "Plone",
+      "description": "A free and open-source CMS built on top of Zope",
+      "categories": [
+        "CMS"
+      ],
+      "platform": "linux",
+      "logo": "https://portainer-io-assets.sfo2.digitaloceanspaces.com/logos/plone.png",
+      "image": "plone:latest",
+      "ports": [
+        "8080/tcp"
+      ],
+      "volumes": [
+        {
+          "container": "/data"
+        }
+      ]
+    },
+    {
+      "type": 1,
+      "title": "ContentBox",
+      "description": "Open-source modular CMS",
+      "categories": [
+        "CMS"
+      ],
+      "platform": "linux",
+      "logo": "https://portainer-io-assets.sfo2.digitaloceanspaces.com/logos/ortussolutions-contentbox.png",
+      "image": "ortussolutions/contentbox:latest",
+      "env": [
+        {
+          "name": "express",
+          "set": "true"
+        },
+        {
+          "name": "install",
+          "set": "true"
+        },
+        {
+          "name": "CFENGINE",
+          "set": "lucee@4.5"
+        }
+      ],
+      "ports": [
+        "8080/tcp",
+        "8443/tcp"
+      ],
+      "volumes": [
+        {
+          "container": "/data/contentbox/db"
+        },
+        {
+          "container": "/app/includes/shared/media"
+        }
+      ]
+    },
+    {
+      "type": 1,
+      "title": "Magento 2",
+      "description": "Open-source e-commerce platform",
+      "categories": [
+        "CMS"
+      ],
+      "platform": "linux",
+      "logo": "https://portainer-io-assets.sfo2.digitaloceanspaces.com/logos/magento.png",
+      "image": "alankent/gsd:latest",
+      "ports": [
+        "80/tcp",
+        "3000/tcp",
+        "3001/tcp"
+      ],
+      "volumes": [
+        {
+          "container": "/var/www/html/"
+        }
+      ]
+    }
+  ]
+}

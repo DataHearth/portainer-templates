@@ -1,0 +1,94 @@
+{
+  "templates": [
+    {
+      "type": 1,
+      "title": "Minio",
+      "description": "A distributed object storage server built for cloud applications and devops",
+      "categories": [
+        "storage"
+      ],
+      "platform": "linux",
+      "logo": "https://portainer-io-assets.sfo2.digitaloceanspaces.com/logos/minio.png",
+      "image": "minio/minio:latest",
+      "ports": [
+        "9000/tcp"
+      ],
+      "env": [
+        {
+          "name": "MINIO_ACCESS_KEY",
+          "label": "Minio access key"
+        },
+        {
+          "name": "MINIO_SECRET_KEY",
+          "label": "Minio secret key"
+        }
+      ],
+      "volumes": [
+        {
+          "container": "/data"
+        },
+        {
+          "container": "/root/.minio"
+        }
+      ],
+      "command": "server /data"
+    },
+    {
+      "type": 1,
+      "title": "Scality S3",
+      "description": "Standalone AWS S3 protocol server",
+      "categories": [
+        "storage"
+      ],
+      "platform": "linux",
+      "logo": "https://portainer-io-assets.sfo2.digitaloceanspaces.com/logos/scality-s3.png",
+      "image": "scality/s3server",
+      "ports": [
+        "8000/tcp"
+      ],
+      "env": [
+        {
+          "name": "SCALITY_ACCESS_KEY",
+          "label": "Scality S3 access key"
+        },
+        {
+          "name": "SCALITY_SECRET_KEY",
+          "label": "Scality S3 secret key"
+        }
+      ],
+      "volumes": [
+        {
+          "container": "/usr/src/app/localData"
+        },
+        {
+          "container": "/usr/src/app/localMetadata"
+        }
+      ]
+    },
+    {
+      "type": 1,
+      "title": "File browser",
+      "description": "A web file manager",
+      "note": "Default credentials: admin/admin",
+      "categories": [
+        "filesystem",
+        "storage"
+      ],
+      "platform": "linux",
+      "logo": "https://portainer-io-assets.sfo2.digitaloceanspaces.com/logos/filebrowser.png",
+      "image": "filebrowser/filebrowser:latest",
+      "ports": [
+        "80/tcp"
+      ],
+      "volumes": [
+        {
+          "container": "/data"
+        },
+        {
+          "container": "/srv"
+        }
+      ],
+      "command": "--port 80 --database /data/database.db --root /srv"
+    }
+  ]
+}

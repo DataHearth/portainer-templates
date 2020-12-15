@@ -1,0 +1,215 @@
+{
+  "templates": [
+    {
+      "type": 1,
+      "title": "Registry",
+      "description": "Docker image registry",
+      "categories": [
+        "docker"
+      ],
+      "platform": "linux",
+      "logo": "https://portainer-io-assets.sfo2.digitaloceanspaces.com/logos/registry.png",
+      "image": "registry:latest",
+      "ports": [
+        "5000/tcp"
+      ],
+      "volumes": [
+        {
+          "container": "/var/lib/registry"
+        }
+      ]
+    },
+    {
+      "type": 1,
+      "title": "Solr",
+      "description": "Open-source enterprise search platform",
+      "categories": [
+        "search-engine"
+      ],
+      "platform": "linux",
+      "logo": "https://portainer-io-assets.sfo2.digitaloceanspaces.com/logos/solr.png",
+      "image": "solr:latest",
+      "ports": [
+        "8983/tcp"
+      ],
+      "volumes": [
+        {
+          "container": "/opt/solr/mydata"
+        }
+      ]
+    },
+    {
+      "type": 1,
+      "title": "RabbitMQ",
+      "description": "Highly reliable enterprise messaging system",
+      "categories": [
+        "messaging"
+      ],
+      "platform": "linux",
+      "logo": "https://portainer-io-assets.sfo2.digitaloceanspaces.com/logos/rabbitmq.png",
+      "image": "rabbitmq:latest",
+      "ports": [
+        "5671/tcp",
+        "5672/tcp"
+      ],
+      "volumes": [
+        {
+          "container": "/var/lib/rabbitmq"
+        }
+      ]
+    },
+    {
+      "type": 1,
+      "title": "Ghost",
+      "description": "Free and open-source blogging platform",
+      "categories": [
+        "blog"
+      ],
+      "note": "Access the blog management interface under <code>/ghost/</code>.",
+      "platform": "linux",
+      "logo": "https://portainer-io-assets.sfo2.digitaloceanspaces.com/logos/ghost.png",
+      "image": "ghost:latest",
+      "ports": [
+        "2368/tcp"
+      ],
+      "volumes": [
+        {
+          "container": "/var/lib/ghost/content"
+        }
+      ]
+    },
+    {
+      "type": 1,
+      "title": "Mautic",
+      "description": "Open-source marketing automation platform",
+      "categories": [
+        "marketing"
+      ],
+      "platform": "linux",
+      "logo": "https://portainer-io-assets.sfo2.digitaloceanspaces.com/logos/mautic.png",
+      "image": "mautic/mautic:latest",
+      "env": [
+        {
+          "name": "MAUTIC_DB_HOST",
+          "label": "MySQL database host",
+          "type": "container"
+        },
+        {
+          "name": "MAUTIC_DB_PASSWORD",
+          "label": "Database password"
+        }
+      ],
+      "ports": [
+        "80/tcp"
+      ],
+      "volumes": [
+        {
+          "container": "/var/www/html"
+        }
+      ]
+    },
+    {
+      "type": 1,
+      "title": "Wowza",
+      "description": "Streaming media server",
+      "categories": [
+        "streaming"
+      ],
+      "platform": "linux",
+      "logo": "https://portainer-io-assets.sfo2.digitaloceanspaces.com/logos/wowza.png",
+      "image": "sameersbn/wowza:4.1.2-8",
+      "env": [
+        {
+          "name": "WOWZA_ACCEPT_LICENSE",
+          "label": "Agree to Wowza EULA",
+          "set": "yes"
+        },
+        {
+          "name": "WOWZA_KEY",
+          "label": "License key"
+        }
+      ],
+      "ports": [
+        "1935/tcp",
+        "8086/tcp",
+        "8087/tcp",
+        "8088/tcp"
+      ],
+      "volumes": [
+        {
+          "container": "/var/lib/wowza"
+        }
+      ]
+    },
+    {
+      "type": 1,
+      "title": "Jenkins",
+      "description": "Open-source continuous integration tool",
+      "categories": [
+        "continuous-integration"
+      ],
+      "platform": "linux",
+      "logo": "https://portainer-io-assets.sfo2.digitaloceanspaces.com/logos/jenkins.png",
+      "image": "jenkins/jenkins:lts",
+      "ports": [
+        "8080/tcp",
+        "50000/tcp"
+      ],
+      "env": [
+        {
+          "name": "JENKINS_OPTS",
+          "label": "Jenkins options"
+        }
+      ],
+      "volumes": [
+        {
+          "container": "/var/jenkins_home"
+        }
+      ]
+    },
+    {
+      "type": 1,
+      "title": "Urbackup",
+      "description": "Open-source network backup",
+      "categories": [
+        "backup"
+      ],
+      "platform": "linux",
+      "note": "This application web interface is exposed on the port 55414 inside the container.",
+      "logo": "https://portainer-io-assets.sfo2.digitaloceanspaces.com/logos/urbackup.png",
+      "image": "cfstras/urbackup",
+      "ports": [
+        "55413/tcp",
+        "55414/tcp",
+        "55415/tcp",
+        "35622/tcp"
+      ],
+      "volumes": [
+        {
+          "container": "/var/urbackup"
+        }
+      ]
+    },
+    {
+      "type": 1,
+      "title": "CommandBox",
+      "description": "ColdFusion (CFML) CLI",
+      "categories": [
+        "development"
+      ],
+      "platform": "linux",
+      "logo": "https://portainer-io-assets.sfo2.digitaloceanspaces.com/logos/ortussolutions-commandbox.png",
+      "image": "ortussolutions/commandbox:latest",
+      "env": [
+        {
+          "name": "CFENGINE",
+          "set": "lucee@4.5"
+        }
+      ],
+      "ports": [
+        "8080/tcp",
+        "8443/tcp"
+      ]
+    }
+  ]
+}
