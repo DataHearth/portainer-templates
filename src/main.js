@@ -1,3 +1,4 @@
+/* eslint-disable no-throw-literal */
 const path = require('path');
 const fs = require('fs');
 const { dockerTemplate, swarmTemplate } = require('./default-template');
@@ -5,7 +6,13 @@ const logger = require('./logger');
 
 const readDirContent = (dirPath) => {
   // list directory's files
-  const files = fs.readdirSync(dirPath);
+  let files;
+  try {
+    files = fs.readdirSync(dirPath);
+  } catch (error) {
+    throw { message: `invalid directory or path: ${dirPath}` };
+  }
+
   for (let index = 0; index < files.length; index += 1) {
     // set a path like
     files[index] = path.join(dirPath, files[index]);
@@ -21,12 +28,16 @@ const readFileContent = async (filePath, template) => {
   }
   logger.debug('file exist', { path: filePath });
 
+  let content;
   let fileTemplate;
-  const content = fs.readFileSync(filePath, { encoding: 'utf8', flag: 'r' });
+  try {
+    content = fs.readFileSync(filePath, { encoding: 'utf8', flag: 'r' });
+  } catch (error) {
+    throw { message: `invalid path or file: ${filePath}`, details: error.message };
+  }
   try {
     fileTemplate = JSON.parse(content);
   } catch (error) {
-    // eslint-disable-next-line no-throw-literal
     throw { message: `invalid JSON for file: ${filePath}`, details: error.message };
   }
   logger.debug('parsing completed');
@@ -93,7 +104,7 @@ const gatherTemplates = async (dirPath, template) => {
   // eslint-disable-next-line no-restricted-syntax
   for (const filePath of filesPath) {
     // eslint-disable-next-line no-await-in-loop
-    templates.push(await readFileContent(filePath, template));
+    templates.push(...await readFileContent(filePath, template));
   }
 
   return templates;
