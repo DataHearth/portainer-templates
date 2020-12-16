@@ -3,9 +3,10 @@ const {
     combine, timestamp, json,
   },
 } = require('winston');
+const { PRODUCTION, LOG_LEVEL } = require('./env');
 
 const logger = createLogger({
-  level: process.env.LOG_LEVEL,
+  level: LOG_LEVEL,
   format: combine(
     json(),
     timestamp({ format: 'DD-MM-YYYY HH:mm:ss' }),
@@ -18,7 +19,7 @@ const logger = createLogger({
   })],
 });
 
-if (process.env.PRODUCTION) {
+if (PRODUCTION) {
   logger.add(new transports.File({
     filename: 'logs/application.log',
     maxFiles: 100000,
