@@ -8,6 +8,7 @@ RUN npm i
 
 ENV NPM_CONFIG_LOGLEVEL info 
 ENV LOG_LEVEL info
-ENV TEMPLATES_FOLDER 'templates'
+ENV TEMPLATES_FOLDER templates
+ENV PRODUCTION true
 
 CMD [ "npm", "start" ]
