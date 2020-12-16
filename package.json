@@ -1,10 +1,12 @@
 {
   "name": "portainer-templates",
-  "version": "0.0.1",
-  "description": "Server to serve custom templates for Portainer-CE",
+  "version": "0.1.0",
+  "description": "API server for Portainer-CE custom templates",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js"
+    "dev": "LOG_LEVEL=debug nodemon app.js",
+    "start": "node app.js",
+    "lint": "eslint --fix"
   },
   "repository": {
     "type": "git",
@@ -23,7 +25,6 @@
   },
   "homepage": "https://github.com/DataHearth/portainer-templates#readme",
   "dependencies": {
-    "@hapi/boom": "^9.1.0",
     "@koa/router": "^10.0.0",
     "joi": "^17.3.0",
     "koa": "^2.13.0",
@@ -33,6 +34,7 @@
   "devDependencies": {
     "eslint": "^7.15.0",
     "eslint-config-airbnb-base": "^14.2.1",
-    "eslint-plugin-import": "^2.22.1"
+    "eslint-plugin-import": "^2.22.1",
+    "nodemon": "^2.0.6"
   }
 }
