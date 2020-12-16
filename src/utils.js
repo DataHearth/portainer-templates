@@ -110,6 +110,20 @@ const gatherTemplates = async (dirPath, template) => {
   return templates;
 };
 
+const checkImplementation = (templateType) => {
+  if (!['docker', 'swarm'].includes(templateType)) {
+    logger.error('templateType parameter is invalid', { templateType });
+    throw {
+      message: 'provided template type is not recognized',
+      details: {
+        templateType,
+        validTypes: ['docker', 'swarm'],
+      },
+    };
+  }
+  logger.debug('template type is valid and implemented');
+};
+
 module.exports = {
-  readDirContent, readFileContent, gatherTemplates,
+  readDirContent, readFileContent, gatherTemplates, checkImplementation,
 };

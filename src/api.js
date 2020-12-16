@@ -2,27 +2,20 @@ const Router = require('@koa/router');
 const fs = require('fs');
 const path = require('path');
 const logger = require('./logger');
-const { gatherTemplates } = require('./main');
+const { gatherTemplates, checkImplementation } = require('./utils');
+const { TEMPLATES_FOLDER } = require('./env');
 
 const router = new Router();
 
 router.get('/api/templates/:templateType', async (ctx) => {
   // check if template type is available in available in portainer or implemented
-  if (!['docker', 'swarm'].includes(ctx.params.templateType)) {
-    logger.error('templateType parameter is invalid', { templateType: ctx.params.templateType });
-    ctx.throw(
-      {
-        message: 'provided template type is not recognized',
-        details: {
-          templateType: ctx.params.templateType,
-          validTypes: ['docker', 'swarm'],
-        },
-      },
-    );
+  try {
+    checkImplementation(ctx.params.templateType);
+  } catch (error) {
+    ctx.throw(400, error);
   }
-  logger.debug('template type is valid and implemented');
 
-  const templatesPath = path.join(__dirname, '../', process.env.TEMPLATES_FOLDER || 'templates', ctx.params.templateType);
+  const templatesPath = path.join(__dirname, '../', TEMPLATES_FOLDER, ctx.params.templateType);
   const templates = [];
 
   try {
@@ -35,10 +28,9 @@ router.get('/api/templates/:templateType', async (ctx) => {
 
     // create a promise for each directory
     const templatePromises = [];
-    for (let i = 0; i < directoriesPath.length; i += 1) {
-      // eslint-disable-next-line no-await-in-loop
-      templatePromises.push(gatherTemplates(directoriesPath[i], 'docker'));
-    }
+    directoriesPath.forEach((dirPath) => {
+      templatePromises.push(gatherTemplates(dirPath, 'docker'));
+    });
 
     // resolve promises array in paralelle for performance
     const values = await Promise.all(templatePromises);
@@ -47,7 +39,7 @@ router.get('/api/templates/:templateType', async (ctx) => {
     });
   } catch (error) {
     logger.error(error.message, { ...error.details });
-    ctx.throw(error);
+    ctx.throw(500, error);
     return;
   }
 
@@ -57,8 +49,27 @@ router.get('/api/templates/:templateType', async (ctx) => {
   };
 });
 
-router.get('/api/templates/:templateType/:category', () => {
+router.get('/api/templates/:templateType/:category', async (ctx) => {
+  const { templateType, category } = ctx.params;
+  // check if template type is available in available in portainer or implemented
+  try {
+    checkImplementation(templateType);
+  } catch (error) {
+    ctx.throw(400, error);
+  }
 
+  let templates;
+  try {
+    const dirPath = path.join(__dirname, '../', TEMPLATES_FOLDER, templateType, category);
+    templates = await gatherTemplates(dirPath, 'docker');
+  } catch (error) {
+    ctx.throw(500, error);
+  }
+
+  ctx.body = {
+    version: '2',
+    templates,
+  };
 });
 
 module.exports = router;
