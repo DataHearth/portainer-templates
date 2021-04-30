@@ -2,7 +2,6 @@ package db
 
 import (
 	"errors"
-	"fmt"
 	"strconv"
 	"sync"
 
@@ -21,9 +20,12 @@ type Database interface {
 	getComposeById(int) (*tables.ComposeTable, error)
 	getStackTemplates() ([]tables.StackTable, error)
 	getStackById(int) (*tables.StackTable, error)
-	AddStackTemplates([]templates.Stack)
-	AddComposeTemplates([]templates.Compose)
-	AddContainerTemplates([]templates.Container)
+	AddStackTemplates([]templates.Stack) error
+	AddComposeTemplates([]templates.Compose) error
+	AddContainerTemplates([]templates.Container) error
+	AddComposeTemplate(templates.Compose) error
+	AddStackTemplate(stack templates.Stack) error
+	AddContainerTemplate(container templates.Container) error
 	GetAllTemplates() ([]tables.ContainerTable, []tables.StackTable, []tables.ComposeTable, error)
 	GetTemplateById(string, string) (interface{}, error)
 }
@@ -55,76 +57,41 @@ func NewDB(logger logrus.FieldLogger) (Database, error) {
 		return nil, err
 	}
 
-	db.Create(&tables.StackTable{
-		Type:        1,
-		Title:       "SUP HERE",
-		Description: "some desc",
-		Note:        "some notes",
-		Categories: []tables.StackCategory{
-			{
-				Name: "zefhnzef",
-			},
-		},
-		Platform: "some plateform",
-		Logo:     "some logo",
-		Repository: tables.StackRepository{
-			URL:       " some url",
-			Stackfile: " some stackfile",
-		},
-		Envs: []tables.StackEnv{
-			{
-				Name:        " NOPE IM HERE SLUT",
-				Label:       "some label",
-				Description: "descpritoger",
-				Default:     " fzefzef",
-				Preset:      "fzefzef",
-				Selects: []tables.StackSelect{
-					{
-						Text:    " éfezfze",
-						Value:   " IM HERE BITCH!",
-						Default: false,
-					},
-				},
-			},
-		},
-		AdministratorOnly: false,
-		Name:              " some name",
-	})
-	db.Create(&tables.StackTable{
-		Type:        1,
-		Title:       "SUP HERE",
-		Description: "some desc",
-		Note:        "some notes",
-		Categories: []tables.StackCategory{
-			{
-				Name: "zefhnzef",
-			},
-		},
-		Platform: "some plateform",
-		Logo:     "some logo",
-		Repository: tables.StackRepository{
-			URL:       " some url",
-			Stackfile: " some stackfile",
-		},
-		Envs: []tables.StackEnv{
-			{
-				Name:        " NOPE IM HERE SLUT",
-				Label:       "some label",
-				Description: "descpritoger",
-				Default:     " fzefzef",
-				Preset:      "fzefzef",
-				Selects: []tables.StackSelect{
-					{
-						Text:    " éfezfze",
-						Value:   " IM HERE BITCH!",
-						Default: false,
-					},
-				},
-			},
-		},
-		AdministratorOnly: false,
-		Name:              " some name",
-	})
+	// db.Create(&tables.StackTable{
+	// 	Type:        1,
+	// 	Title:       "SUP HERE",
+	// 	Description: "some desc",
+	// 	Note:        "some notes",
+	// 	Categories: []tables.StackCategory{
+	// 		{
+	// 			Name: "zefhnzef",
+	// 		},
+	// 	},
+	// 	Platform: "some plateform",
+	// 	Logo:     "some logo",
+	// 	Repository: tables.StackRepository{
+	// 		URL:       " some url",
+	// 		Stackfile: " some stackfile",
+	// 	},
+	// 	Envs: []tables.StackEnv{
+	// 		{
+	// 			Name:        " NOPE IM HERE SLUT",
+	// 			Label:       "some label",
+	// 			Description: "descpritoger",
+	// 			Default:     " fzefzef",
+	// 			Preset:      "fzefzef",
+	// 			Selects: []tables.StackSelect{
+	// 				{
+	// 					Text:    " éfezfze",
+	// 					Value:   " IM HERE BITCH!",
+	// 					Default: false,
+	// 				},
+	// 			},
+	// 		},
+	// 	},
+	// 	AdministratorOnly: false,
+	// 	Name:              " some name",
+	// })
 
 	return &database{
 		DB:     db,
@@ -187,7 +154,6 @@ func (db *database) GetAllTemplates() ([]tables.ContainerTable, []tables.StackTa
 		return nil, nil, nil, e
 	}
 
-	fmt.Printf("here 1: %v\n", stacks)
 	return containers, stacks, composes, nil
 }
 

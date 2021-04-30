@@ -6,14 +6,8 @@ type Templates struct {
 	Templates []interface{} `json:"templates"`
 }
 
-type TemplatesArray struct {
-	Container []Container
-	Compose   []Compose
-	Stack     []Stack
-}
-
 type Compose struct {
-	ID                int        `json:"id"`
+	ID                int        `json:"id,omitempty"`
 	Type              int        `json:"type"`
 	Title             string     `json:"title"`
 	Description       string     `json:"description"`
@@ -28,7 +22,7 @@ type Compose struct {
 }
 
 type Stack struct {
-	ID                int        `json:"id"`
+	ID                int        `json:"id,omitempty"`
 	Type              int        `json:"type"`
 	Title             string     `json:"title"`
 	Description       string     `json:"description"`
@@ -43,7 +37,7 @@ type Stack struct {
 }
 
 type Container struct {
-	ID                int       `json:"id"`
+	ID                int       `json:"id,omitempty"`
 	Type              int       `json:"type"`
 	Title             string    `json:"title"`
 	Description       string    `json:"description"`

@@ -3,6 +3,7 @@ package db
 import (
 	"github.com/datahearth/portainer-templates/pkg/db/tables"
 	"github.com/datahearth/portainer-templates/pkg/db/templates"
+	"github.com/datahearth/portainer-templates/pkg/utils"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm/clause"
 )
@@ -38,6 +39,27 @@ func (db *database) getStackById(id int) (*tables.StackTable, error) {
 	return stack, nil
 }
 
-func (db *database) AddStackTemplates([]templates.Stack) {
+func (db *database) AddStackTemplates(stacks []templates.Stack) error {
+	for _, s := range stacks {
+		if err := db.AddStackTemplate(s); err != nil {
+			return err
+		}
+	}
 
+	return nil
+}
+
+func (db *database) AddStackTemplate(stack templates.Stack) error {
+	sqlStacks := utils.JSONStackToSQL(stack)
+
+	if err := db.Where("title = ?", sqlStacks.Title).FirstOrCreate(&sqlStacks).Error; err != nil {
+		db.logger.WithError(err).WithFields(logrus.Fields{
+			"component":   "AddStackTemplates",
+			"stack-title": sqlStacks.Title,
+		}).Errorln("failed to insert stack in database")
+
+		return err
+	}
+
+	return nil
 }

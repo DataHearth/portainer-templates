@@ -3,6 +3,7 @@ package db
 import (
 	"github.com/datahearth/portainer-templates/pkg/db/tables"
 	"github.com/datahearth/portainer-templates/pkg/db/templates"
+	"github.com/datahearth/portainer-templates/pkg/utils"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm/clause"
 )
@@ -38,6 +39,27 @@ func (db *database) getComposeById(id int) (*tables.ComposeTable, error) {
 	return compose, nil
 }
 
-func (db *database) AddComposeTemplates([]templates.Compose) {
+func (db *database) AddComposeTemplates(composes []templates.Compose) error {
+	for _, c := range composes {
+		if err := db.AddComposeTemplate(c); err != nil {
+			return err
+		}
+	}
 
+	return nil
+}
+
+func (db *database) AddComposeTemplate(compose templates.Compose) error {
+	sqlCompose := utils.JSONComposeToSQL(compose)
+
+	if err := db.Where("title = ?", sqlCompose.Title).FirstOrCreate(&sqlCompose).Error; err != nil {
+		db.logger.WithError(err).WithFields(logrus.Fields{
+			"component":     "AddComposeTemplates",
+			"compose-title": sqlCompose.Title,
+		}).Errorln("failed to insert compose in database")
+		
+		return err
+	}
+
+	return nil
 }

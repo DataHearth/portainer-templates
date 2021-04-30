@@ -13,7 +13,6 @@ import (
 func FormatBody(containers []tables.ContainerTable, stacks []tables.StackTable, composes []tables.ComposeTable) ([]byte, error) {
 	t := new(templates.Templates)
 	t.Version = "2"
-	var final []interface{}
 
 	for _, c := range composes {
 		t.Templates = append(t.Templates, SQLComposeToJSON(c))
@@ -25,14 +24,75 @@ func FormatBody(containers []tables.ContainerTable, stacks []tables.StackTable, 
 		t.Templates = append(t.Templates, SQLStackToJSON(s))
 	}
 
-	t.Templates = final
-
 	b, err := json.Marshal(t)
 	if err != nil {
 		return nil, err
 	}
 
 	return b, nil
+}
+
+func JSONStackToSQL(stack templates.Stack) tables.StackTable {
+	wg := new(sync.WaitGroup)
+	cats := make([]tables.StackCategory, 0, len(stack.Categories))
+	envs := make([]tables.StackEnv, 0, len(stack.Env))
+	repo := tables.StackRepository{
+		ID:        stack.Repository.ID,
+		URL:       stack.Repository.URL,
+		Stackfile: stack.Repository.Stackfile,
+	}
+
+	wg.Add(2)
+	go func() {
+		for _, cat := range stack.Categories {
+			cats = append(cats, tables.StackCategory{
+				Name: cat,
+			})
+		}
+		wg.Done()
+	}()
+	go func() {
+		for _, e := range stack.Env {
+			selects := make([]tables.StackSelect, 0, len(e.Select))
+
+			for _, s := range e.Select {
+				selects = append(selects, tables.StackSelect{
+					ID:      s.ID,
+					Text:    s.Text,
+					Value:   s.Value,
+					Default: s.Default,
+				})
+			}
+
+			envs = append(envs, tables.StackEnv{
+				ID:          e.ID,
+				Name:        e.Name,
+				Label:       e.Label,
+				Description: e.Description,
+				Default:     e.Default,
+				Preset:      e.Preset,
+				Selects:     selects,
+			})
+		}
+		wg.Done()
+	}()
+
+	wg.Wait()
+
+	return tables.StackTable{
+		ID:                stack.ID,
+		Type:              stack.Type,
+		Title:             stack.Title,
+		Description:       stack.Description,
+		Note:              stack.Note,
+		Categories:        cats,
+		Platform:          stack.Platform,
+		Logo:              stack.Logo,
+		Repository:        repo,
+		Envs:              envs,
+		AdministratorOnly: stack.AdministratorOnly,
+		Name:              stack.Name,
+	}
 }
 
 func JSONContainerToSQL(container templates.Container) tables.ContainerTable {
@@ -127,6 +187,69 @@ func JSONContainerToSQL(container templates.Container) tables.ContainerTable {
 		RestartPolicy:     container.RestartPolicy,
 		Hostname:          container.Hostname,
 		Note:              container.Note,
+	}
+}
+
+func JSONComposeToSQL(compose templates.Compose) tables.ComposeTable {
+	wg := new(sync.WaitGroup)
+	cats := make([]tables.ComposeCategory, 0, len(compose.Categories))
+	envs := make([]tables.ComposeEnv, 0, len(compose.Env))
+	repo := tables.ComposeRepository{
+		ID:        compose.Repository.ID,
+		URL:       compose.Repository.URL,
+		Stackfile: compose.Repository.Stackfile,
+	}
+
+	wg.Add(2)
+	go func() {
+		for _, cat := range compose.Categories {
+			cats = append(cats, tables.ComposeCategory{
+				Name: cat,
+			})
+		}
+		wg.Done()
+	}()
+	go func() {
+		for _, e := range compose.Env {
+			selects := make([]tables.ComposeSelect, 0, len(e.Select))
+
+			for _, s := range e.Select {
+				selects = append(selects, tables.ComposeSelect{
+					ID:      s.ID,
+					Text:    s.Text,
+					Value:   s.Value,
+					Default: s.Default,
+				})
+			}
+
+			envs = append(envs, tables.ComposeEnv{
+				ID:          e.ID,
+				Name:        e.Name,
+				Label:       e.Label,
+				Description: e.Description,
+				Default:     e.Default,
+				Preset:      e.Preset,
+				Selects:     selects,
+			})
+		}
+		wg.Done()
+	}()
+
+	wg.Wait()
+
+	return tables.ComposeTable{
+		ID:                compose.ID,
+		Type:              compose.Type,
+		Title:             compose.Title,
+		Description:       compose.Description,
+		Note:              compose.Note,
+		Categories:        cats,
+		Platform:          compose.Platform,
+		Logo:              compose.Logo,
+		Repository:        repo,
+		Envs:              envs,
+		AdministratorOnly: compose.AdministratorOnly,
+		Name:              compose.Name,
 	}
 }
 
