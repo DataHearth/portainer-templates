@@ -32,7 +32,12 @@ var rootCmd = cobra.Command{
 			logger.WithError(err).Fatalln("failed to create a database instance")
 		}
 
-		srv, err := server.NewServer(logger, db, os.Getenv("HOST"), os.Getenv("PORT"))
+		port := "4345"
+		if os.Getenv("PORT") != "" {
+			port = os.Getenv("PORT")
+		}
+
+		srv, err := server.NewServer(logger, db, os.Getenv("HOST"), port)
 		if err != nil {
 			logger.WithError(err).Fatalln("failed to create a server instance")
 		}
