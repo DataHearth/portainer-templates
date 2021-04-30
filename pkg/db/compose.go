@@ -1,10 +1,14 @@
 package db
 
-import "errors"
+import (
+	"errors"
 
-func (db *database) GetComposeTemplates() ([]Compose, error) {
-	var compose []Compose
-	res := db.Model(&Compose{}).Find(&compose)
+	"github.com/datahearth/portainer-templates/pkg/db/tables"
+)
+
+func (db *database) getComposeTemplates() ([]tables.Compose, error) {
+	var compose []tables.Compose
+	res := db.Model(&tables.Compose{}).Find(&compose)
 	if res.Error != nil {
 		return nil, res.Error
 	}
@@ -16,9 +20,9 @@ func (db *database) GetComposeTemplates() ([]Compose, error) {
 	return compose, nil
 }
 
-func (db *database) GetComposeById(id uint) (*Compose, error) {
-	var compose *Compose
-	res := db.Model(&Compose{}).Where("id = ?", id).Find(compose)
+func (db *database) getComposeById(id int) (*tables.Compose, error) {
+	var compose *tables.Compose
+	res := db.Model(&tables.Compose{}).Where("id = ?", id).Find(compose)
 	if res.Error != nil {
 		return nil, res.Error
 	}

@@ -1,10 +1,14 @@
 package db
 
-import "errors"
+import (
+	"errors"
 
-func (db *database) GetStackTemplates() ([]Stack, error) {
-	var stack []Stack
-	res := db.Model(&Stack{}).Find(&stack)
+	"github.com/datahearth/portainer-templates/pkg/db/tables"
+)
+
+func (db *database) getStackTemplates() ([]tables.Stack, error) {
+	var stack []tables.Stack
+	res := db.Model(&tables.Stack{}).Find(&stack)
 	if res.Error != nil {
 		return nil, res.Error
 	}
@@ -16,9 +20,9 @@ func (db *database) GetStackTemplates() ([]Stack, error) {
 	return stack, nil
 }
 
-func (db *database) GetStackById(id uint) (*Stack, error) {
-	var stack *Stack
-	res := db.Model(&Stack{}).Where("id = ?", id).Find(stack)
+func (db *database) getStackById(id int) (*tables.Stack, error) {
+	var stack *tables.Stack
+	res := db.Model(&tables.Stack{}).Where("id = ?", id).Find(stack)
 	if res.Error != nil {
 		return nil, res.Error
 	}

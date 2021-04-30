@@ -2,22 +2,24 @@ package db
 
 import (
 	"errors"
+	"strconv"
 	"sync"
 
+	"github.com/datahearth/portainer-templates/pkg/db/tables"
 	"github.com/sirupsen/logrus"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
 type Database interface {
-	GetContainerTemplates() ([]Container, error)
-	GetContainerById(uint) (*Container, error)
-	GetComposeTemplates() ([]Compose, error)
-	GetComposeById(uint) (*Compose, error)
-	GetStackTemplates() ([]Stack, error)
-	GetStackById(uint) (*Stack, error)
-	GetAllTemplates() (*TemplatesArray, error)
-	Close()
+	getContainerTemplates() ([]tables.Container, error)
+	getContainerById(int) (*tables.Container, error)
+	getComposeTemplates() ([]tables.Compose, error)
+	getComposeById(int) (*tables.Compose, error)
+	getStackTemplates() ([]tables.Stack, error)
+	getStackById(int) (*tables.Stack, error)
+	GetAllTemplates() (*tables.TemplatesArray, error)
+	GetTemplateById(string, string) (interface{}, error)
 }
 
 type database struct {
@@ -29,36 +31,31 @@ func NewDB(logger logrus.FieldLogger) (Database, error) {
 	if logger == nil {
 		return nil, errors.New("logger is mandatory")
 	}
-	logger = logger.WithField("pkg", "database")
 
 	db, err := gorm.Open(sqlite.Open("dev.db"))
 	if err != nil {
 		return nil, err
 	}
 
-	if err := db.AutoMigrate(&Compose{}, &Container{}, &Stack{}); err != nil {
+	if err := db.AutoMigrate(&tables.Compose{}, &tables.Container{}, &tables.Stack{}); err != nil {
 		return nil, err
 	}
 
 	return &database{
 		DB:     db,
-		logger: logger,
+		logger: logger.WithField("pkg", "database"),
 	}, nil
 }
 
-func (db *database) Close() {
-	db.Close()
-}
-
-func (db *database) GetAllTemplates() (*TemplatesArray, error) {
+func (db *database) GetAllTemplates() (*tables.TemplatesArray, error) {
 	wg := new(sync.WaitGroup)
-	templates := new(TemplatesArray)
+	templates := new(tables.TemplatesArray)
 	logger := db.logger.WithField("component", "GetAllTemplates")
 
-	wg.Add(3)
 	logger.Debugln("Start retrieving templates from database...")
-	go func(wait *sync.WaitGroup, tmp *TemplatesArray) error {
-		composes, err := db.GetComposeTemplates()
+	wg.Add(3)
+	go func(wait *sync.WaitGroup, tmp *tables.TemplatesArray) error {
+		composes, err := db.getComposeTemplates()
 		if err != nil {
 			return err
 		}
@@ -70,8 +67,8 @@ func (db *database) GetAllTemplates() (*TemplatesArray, error) {
 
 		return nil
 	}(wg, templates)
-	go func(wait *sync.WaitGroup, tmp *TemplatesArray) error {
-		containers, err := db.GetContainerTemplates()
+	go func(wait *sync.WaitGroup, tmp *tables.TemplatesArray) error {
+		containers, err := db.getContainerTemplates()
 		if err != nil {
 			return err
 		}
@@ -83,8 +80,8 @@ func (db *database) GetAllTemplates() (*TemplatesArray, error) {
 
 		return nil
 	}(wg, templates)
-	go func(wait *sync.WaitGroup, tmp *TemplatesArray) error {
-		stacks, err := db.GetStackTemplates()
+	go func(wait *sync.WaitGroup, tmp *tables.TemplatesArray) error {
+		stacks, err := db.getStackTemplates()
 		if err != nil {
 			return err
 		}
@@ -100,4 +97,35 @@ func (db *database) GetAllTemplates() (*TemplatesArray, error) {
 	wg.Wait()
 
 	return templates, nil
+}
+
+func (db *database) GetTemplateById(templateType, id string) (interface{}, error) {
+	var template interface{}
+	ID, err := strconv.Atoi(id)
+	if err != nil {
+		return nil, errors.New("failed to convert string to int")
+	}
+
+	switch templateType {
+	case "container":
+		container, err := db.getContainerById(ID)
+		if err != nil {
+			return nil, err
+		}
+		template = container
+	case "stack":
+		stack, err := db.getStackById(ID)
+		if err != nil {
+			return nil, err
+		}
+		template = stack
+	case "compose":
+		compose, err := db.getComposeById(ID)
+		if err != nil {
+			return nil, err
+		}
+		template = compose
+	}
+
+	return template, nil
 }
