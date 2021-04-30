@@ -2,10 +2,12 @@ package db
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 	"sync"
 
 	"github.com/datahearth/portainer-templates/pkg/db/tables"
+	"github.com/datahearth/portainer-templates/pkg/db/templates"
 	"github.com/sirupsen/logrus"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -13,13 +15,16 @@ import (
 )
 
 type Database interface {
-	getContainerTemplates() ([]tables.Container, error)
-	getContainerById(int) (*tables.Container, error)
-	getComposeTemplates() ([]tables.Compose, error)
-	getComposeById(int) (*tables.Compose, error)
-	getStackTemplates() ([]tables.Stack, error)
-	getStackById(int) (*tables.Stack, error)
-	GetAllTemplates() (*tables.TemplatesArray, error)
+	getContainerTemplates() ([]tables.ContainerTable, error)
+	getContainerById(int) (*tables.ContainerTable, error)
+	getComposeTemplates() ([]tables.ComposeTable, error)
+	getComposeById(int) (*tables.ComposeTable, error)
+	getStackTemplates() ([]tables.StackTable, error)
+	getStackById(int) (*tables.StackTable, error)
+	AddStackTemplates([]templates.Stack)
+	AddComposeTemplates([]templates.Compose)
+	AddContainerTemplates([]templates.Container)
+	GetAllTemplates() ([]tables.ContainerTable, []tables.StackTable, []tables.ComposeTable, error)
 	GetTemplateById(string, string) (interface{}, error)
 }
 
@@ -42,62 +47,148 @@ func NewDB(logger logrus.FieldLogger) (Database, error) {
 		return nil, err
 	}
 
+	if err := db.AutoMigrate(
+		&tables.StackTable{}, &tables.StackSelect{}, &tables.StackRepository{}, &tables.StackEnv{}, &tables.StackCategory{},
+		&tables.ComposeTable{}, &tables.ComposeSelect{}, &tables.ComposeRepository{}, &tables.ComposeEnv{}, &tables.ComposeCategory{},
+		&tables.ContainerTable{}, &tables.ContainerSelect{}, &tables.ContainerPort{}, &tables.ContainerLabel{}, &tables.ContainerEnv{}, &tables.ContainerCategory{}, &tables.ContainerVolume{},
+	); err != nil {
+		return nil, err
+	}
+
+	db.Create(&tables.StackTable{
+		Type:        1,
+		Title:       "SUP HERE",
+		Description: "some desc",
+		Note:        "some notes",
+		Categories: []tables.StackCategory{
+			{
+				Name: "zefhnzef",
+			},
+		},
+		Platform: "some plateform",
+		Logo:     "some logo",
+		Repository: tables.StackRepository{
+			URL:       " some url",
+			Stackfile: " some stackfile",
+		},
+		Envs: []tables.StackEnv{
+			{
+				Name:        " NOPE IM HERE SLUT",
+				Label:       "some label",
+				Description: "descpritoger",
+				Default:     " fzefzef",
+				Preset:      "fzefzef",
+				Selects: []tables.StackSelect{
+					{
+						Text:    " éfezfze",
+						Value:   " IM HERE BITCH!",
+						Default: false,
+					},
+				},
+			},
+		},
+		AdministratorOnly: false,
+		Name:              " some name",
+	})
+	db.Create(&tables.StackTable{
+		Type:        1,
+		Title:       "SUP HERE",
+		Description: "some desc",
+		Note:        "some notes",
+		Categories: []tables.StackCategory{
+			{
+				Name: "zefhnzef",
+			},
+		},
+		Platform: "some plateform",
+		Logo:     "some logo",
+		Repository: tables.StackRepository{
+			URL:       " some url",
+			Stackfile: " some stackfile",
+		},
+		Envs: []tables.StackEnv{
+			{
+				Name:        " NOPE IM HERE SLUT",
+				Label:       "some label",
+				Description: "descpritoger",
+				Default:     " fzefzef",
+				Preset:      "fzefzef",
+				Selects: []tables.StackSelect{
+					{
+						Text:    " éfezfze",
+						Value:   " IM HERE BITCH!",
+						Default: false,
+					},
+				},
+			},
+		},
+		AdministratorOnly: false,
+		Name:              " some name",
+	})
+
 	return &database{
 		DB:     db,
 		logger: logger.WithField("pkg", "database"),
 	}, nil
 }
 
-func (db *database) GetAllTemplates() (*tables.TemplatesArray, error) {
+func (db *database) GetAllTemplates() ([]tables.ContainerTable, []tables.StackTable, []tables.ComposeTable, error) {
 	wg := new(sync.WaitGroup)
-	templates := new(tables.TemplatesArray)
+	err := make(chan error)
+	wgDone := make(chan bool)
+	composes := []tables.ComposeTable{}
+	stacks := []tables.StackTable{}
+	containers := []tables.ContainerTable{}
 	logger := db.logger.WithField("component", "GetAllTemplates")
 
 	logger.Debugln("Start retrieving templates from database...")
 	wg.Add(3)
-	go func(wait *sync.WaitGroup, tmp *tables.TemplatesArray) error {
-		composes, err := db.getComposeTemplates()
-		if err != nil {
-			return err
+	go func() {
+		var e error
+		composes, e = db.getComposeTemplates()
+		if e != nil {
+			err <- e
+		} else {
+			logger.Debugln("Compose templates retrieved")
 		}
-
-		tmp.Compose = composes
-
 		wg.Done()
-		logger.Debugln("Compose templates retrieved")
-
-		return nil
-	}(wg, templates)
-	go func(wait *sync.WaitGroup, tmp *tables.TemplatesArray) error {
-		containers, err := db.getContainerTemplates()
-		if err != nil {
-			return err
+	}()
+	go func() {
+		var e error
+		stacks, e = db.getStackTemplates()
+		if e != nil {
+			err <- e
+		} else {
+			logger.Debugln("Stacks templates retrieved")
 		}
-
-		tmp.Container = containers
-
 		wg.Done()
-		logger.Debugln("Container templates retrieved")
-
-		return nil
-	}(wg, templates)
-	go func(wait *sync.WaitGroup, tmp *tables.TemplatesArray) error {
-		stacks, err := db.getStackTemplates()
-		if err != nil {
-			return err
+	}()
+	go func() {
+		var e error
+		containers, e = db.getContainerTemplates()
+		if e != nil {
+			err <- e
+		} else {
+			logger.Debugln("Containers templates retrieved")
 		}
-
-		tmp.Stack = stacks
-
 		wg.Done()
-		logger.Debugln("Stack templates retrieved")
+	}()
 
-		return nil
-	}(wg, templates)
+	go func() {
+		wg.Wait()
+		close(wgDone)
+	}()
 
-	wg.Wait()
+	select {
+	case <-wgDone:
+		break
+	case e := <-err:
+		close(err)
+		return nil, nil, nil, e
+	}
 
-	return templates, nil
+	fmt.Printf("here 1: %v\n", stacks)
+	return containers, stacks, composes, nil
 }
 
 func (db *database) GetTemplateById(templateType, id string) (interface{}, error) {

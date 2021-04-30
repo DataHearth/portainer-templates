@@ -25,7 +25,7 @@ type ContainerTable struct {
 	Name              string
 	Registry          string
 	Command           string
-	Env               []ContainerEnv
+	Envs               []ContainerEnv
 	Network           string
 	Labels            []ContainerLabel
 	Privileged        bool
@@ -76,7 +76,7 @@ type ContainerEnv struct {
 	Description      string
 	Default          string
 	Preset           string
-	Select           []ContainerSelect
+	Selects           []ContainerSelect
 	ContainerTableID int
 }
 
@@ -99,30 +99,4 @@ type ContainerLabel struct {
 	Name             string `gorm:"not null"`
 	Value            string `gorm:"not null"`
 	ContainerTableID int
-}
-
-// ** JSON ** //
-type Container struct {
-	ID                int       `json:"id"`
-	Type              int       `json:"type"`
-	Title             string    `json:"title"`
-	Description       string    `json:"description"`
-	Categories        []string  `json:"categories,omitempty"`
-	Platform          string    `json:"platform,omitempty"`
-	Logo              string    `json:"logo,omitempty"`
-	Image             string    `json:"image"`
-	Ports             []string  `json:"ports,omitempty"`
-	Volumes           []Volumes `json:"volumes"`
-	AdministratorOnly bool      `json:"administrator_only,omitempty"`
-	Name              string    `json:"name,omitempty"`
-	Registry          string    `json:"registry,omitempty"`
-	Command           string    `json:"command,omitempty"`
-	Env               []Env     `json:"env,omitempty"`
-	Network           string    `json:"network,omitempty"`
-	Labels            []Label   `json:"labels,omitempty"`
-	Privileged        bool      `json:"privileged,omitempty"`
-	Interactive       bool      `json:"interactive,omitempty"`
-	RestartPolicy     string    `json:"restart_policy,omitempty"`
-	Hostname          string    `json:"hostname,omitempty"`
-	Note              string    `json:"note,omitempty"`
 }

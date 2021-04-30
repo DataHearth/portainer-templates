@@ -19,9 +19,8 @@ type StackTable struct {
 	Categories        []StackCategory
 	Platform          string
 	Logo              string
-	StackRepositoryID int
 	Repository        StackRepository
-	Env               []StackEnv
+	Envs               []StackEnv
 	AdministratorOnly bool
 	Name              string
 }
@@ -29,11 +28,12 @@ type StackTable struct {
 // ** Sub tables ** //
 type StackRepository struct {
 	gorm.Model
-	ID        int `gorm:"primaryKey,autoIncrement,not null"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	URL       string `gorm:"not null"`
-	Stackfile string `gorm:"not null"`
+	ID           int `gorm:"primaryKey,autoIncrement,not null"`
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+	URL          string `gorm:"not null"`
+	Stackfile    string `gorm:"not null"`
+	StackTableID int
 }
 
 type StackCategory struct {
@@ -53,7 +53,7 @@ type StackEnv struct {
 	Description  string
 	Default      string
 	Preset       string
-	Select       []StackSelect
+	Selects       []StackSelect
 	StackTableID int
 }
 
@@ -71,20 +71,4 @@ type StackSelect struct {
 // ** GORM table naming ** //
 func (StackTable) TableName() string {
 	return "stack"
-}
-
-// ** JSON ** //
-type Stack struct {
-	ID                int        `json:"id"`
-	Type              int        `json:"type"`
-	Title             string     `json:"title"`
-	Description       string     `json:"description"`
-	Note              string     `json:"note,omitempty"`
-	Categories        []string   `json:"categories,omitempty"`
-	Platform          string     `json:"platform,omitempty"`
-	Logo              string     `json:"logo,omitempty"`
-	Repository        Repository `json:"repository"`
-	Env               []Env      `json:"env,omitempty"`
-	AdministratorOnly bool       `json:"administrator_only,omitempty"`
-	Name              string     `json:"name,omitempty"`
 }

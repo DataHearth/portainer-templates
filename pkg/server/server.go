@@ -14,6 +14,7 @@ type Server interface {
 	RegisterHandlers() error
 	getTemplateById(http.ResponseWriter, *http.Request)
 	getAllTemplates(http.ResponseWriter, *http.Request)
+	loadFromFile(http.ResponseWriter, *http.Request)
 }
 
 type server struct {
@@ -49,6 +50,7 @@ func (s *server) Start(port string) error {
 func (s *server) RegisterHandlers() error {
 	s.router.HandleFunc("/templates", s.getAllTemplates).Methods("GET")
 	s.router.HandleFunc("/templates/{type}/{id}", s.getTemplateById).Methods("GET")
+	s.router.HandleFunc("/templates/load", s.loadFromFile).Methods("GET")
 
 	return nil
 }

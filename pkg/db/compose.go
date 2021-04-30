@@ -1,34 +1,43 @@
 package db
 
 import (
-	"errors"
-
 	"github.com/datahearth/portainer-templates/pkg/db/tables"
+	"github.com/datahearth/portainer-templates/pkg/db/templates"
+	"github.com/sirupsen/logrus"
+	"gorm.io/gorm/clause"
 )
 
-func (db *database) getComposeTemplates() ([]tables.Compose, error) {
-	var compose []tables.Compose
-	res := db.Model(&tables.Compose{}).Find(&compose)
+func (db *database) getComposeTemplates() ([]tables.ComposeTable, error) {
+	compose := []tables.ComposeTable{}
+	res := db.Preload(clause.Associations).Preload("Envs.Selects").Find(&compose)
 	if res.Error != nil {
 		return nil, res.Error
 	}
 
 	if res.RowsAffected == 0 {
-		return nil, errors.New("no compose templates were retrieved")
+		db.logger.WithField("component", "getComposeTemplates").Warnln("no compose templates were retrieved")
 	}
 
 	return compose, nil
 }
 
-func (db *database) getComposeById(id int) (*tables.Compose, error) {
-	var compose *tables.Compose
-	res := db.Model(&tables.Compose{}).Where("id = ?", id).Find(compose)
+func (db *database) getComposeById(id int) (*tables.ComposeTable, error) {
+	var compose *tables.ComposeTable
+	res := db.Preload(clause.Associations).Preload("Envs.Selects").Find(compose, "id = ?", id)
 	if res.Error != nil {
 		return nil, res.Error
 	}
 	if res.RowsAffected == 0 {
-		return nil, errors.New("no compose template was found")
+		db.logger.WithFields(logrus.Fields{
+			"component": "getComposeById",
+			"id":        id,
+		}).Warnln("no compose template was found")
+		return nil, nil
 	}
 
 	return compose, nil
+}
+
+func (db *database) AddComposeTemplates([]templates.Compose) {
+
 }

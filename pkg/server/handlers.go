@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/datahearth/portainer-templates/pkg/utils"
@@ -12,14 +13,16 @@ import (
 func (srv *server) getAllTemplates(rw http.ResponseWriter, r *http.Request) {
 	logger := srv.logger.WithField("component", "getAllTemplates")
 
-	templates, err := srv.db.GetAllTemplates()
+	containers, stacks, composes, err := srv.db.GetAllTemplates()
 	if err != nil {
 		logger.WithError(err).Errorln("failed to get all templates")
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	b, err := utils.FormatBody(templates)
+	fmt.Printf("here 2: %v\n", stacks)
+
+	b, err := utils.FormatBody(containers, stacks, composes)
 	if err != nil {
 		logger.WithError(err).Errorln("error while formatting body")
 		rw.WriteHeader(http.StatusInternalServerError)
@@ -47,15 +50,20 @@ func (srv *server) getTemplateById(rw http.ResponseWriter, r *http.Request) {
 	})
 
 	if ok := utils.CheckStringArray(templateType, []string{"compose", "stack", "container"}); !ok {
-		logger.WithField("type", templateType).Errorln("invalide template type in url")
+		logger.WithField("type", templateType).Errorln("invalide template type")
 		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	template, err := srv.db.GetTemplateById(templateType, id)
 	if err != nil {
-		logger.WithError(err).Errorln("invalide template type in url")
+		logger.WithError(err).Errorln("failed to retrieve template by id")
 		rw.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	if template == nil {
+		logger.WithError(err).Errorln("invalide template id")
+		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
@@ -72,4 +80,8 @@ func (srv *server) getTemplateById(rw http.ResponseWriter, r *http.Request) {
 	if _, err = rw.Write(b); err != nil {
 		logger.WithError(err).Errorln("failed to write response body")
 	}
+}
+
+func (srv *server) loadFromFile(http.ResponseWriter, *http.Request) {
+	
 }

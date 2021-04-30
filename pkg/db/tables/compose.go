@@ -9,31 +9,31 @@ import (
 // ** Main table ** //
 type ComposeTable struct {
 	gorm.Model
-	ID                  int `gorm:"primaryKey,autoIncrement,not null"`
-	CreatedAt           time.Time
-	UpdatedAt           time.Time
-	Type                int    `gorm:"not null"`
-	Title               string `gorm:"unique,index,not null"`
-	Description         string `gorm:"not null"`
-	Note                string
-	Categories          []ComposeCategory `gorm:"foreignKey:ID"`
-	Platform            string
-	Logo                string
-	ComposeRepositoryID int
-	Repository          ComposeRepository
-	Env                 []ComposeEnv `gorm:"foreignKey:ID"`
-	AdministratorOnly   bool
-	Name                string
+	ID                int `gorm:"primaryKey,autoIncrement,not null"`
+	CreatedAt         time.Time
+	UpdatedAt         time.Time
+	Type              int    `gorm:"not null"`
+	Title             string `gorm:"unique,index,not null"`
+	Description       string `gorm:"not null"`
+	Note              string
+	Categories        []ComposeCategory `gorm:"foreignKey:ID"`
+	Platform          string
+	Logo              string
+	Repository        ComposeRepository
+	Envs               []ComposeEnv `gorm:"foreignKey:ID"`
+	AdministratorOnly bool
+	Name              string
 }
 
 // ** Sub tables ** //
 type ComposeRepository struct {
 	gorm.Model
-	ID        int `gorm:"primaryKey,autoIncrement,not null"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	URL       string `gorm:"not null"`
-	Stackfile string `gorm:"not null"`
+	ID             int `gorm:"primaryKey,autoIncrement,not null"`
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+	URL            string `gorm:"not null"`
+	Stackfile      string `gorm:"not null"`
+	ComposeTableID int
 }
 
 type ComposeCategory struct {
@@ -53,7 +53,7 @@ type ComposeEnv struct {
 	Description       string
 	Default           string
 	Preset            string
-	Select            []ComposeSelect
+	Selects            []ComposeSelect
 	ComposeCategoryID int
 }
 
@@ -71,20 +71,4 @@ type ComposeSelect struct {
 // ** GORM table naming ** //
 func (ComposeTable) TableName() string {
 	return "compose"
-}
-
-// ** JSON ** //
-type Compose struct {
-	ID                int        `json:"id"`
-	Type              int        `json:"type"`
-	Title             string     `json:"title"`
-	Description       string     `json:"description"`
-	Note              string     `json:"note,omitempty"`
-	Categories        []string   `json:"categories,omitempty"`
-	Platform          string     `json:"platform,omitempty"`
-	Logo              string     `json:"logo,omitempty"`
-	RepositoryID      Repository `json:"repository"`
-	Env               []Env      `json:"env,omitempty"`
-	AdministratorOnly bool       `json:"administrator_only,omitempty"`
-	Name              string     `json:"name,omitempty"`
 }

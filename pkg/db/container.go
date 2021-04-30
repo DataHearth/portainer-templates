@@ -1,33 +1,52 @@
 package db
 
 import (
-	"errors"
-
 	"github.com/datahearth/portainer-templates/pkg/db/tables"
+	"github.com/datahearth/portainer-templates/pkg/db/templates"
+	"github.com/datahearth/portainer-templates/pkg/utils"
+	"github.com/sirupsen/logrus"
+	"gorm.io/gorm/clause"
 )
 
-func (db *database) getContainerTemplates() ([]tables.Container, error) {
-	var containers []tables.Container
-	res := db.Model(&tables.Container{}).Find(&containers)
+func (db *database) getContainerTemplates() ([]tables.ContainerTable, error) {
+	containers := []tables.ContainerTable{}
+	res := db.Preload(clause.Associations).Preload("Envs.Selects").Find(&containers)
 	if res.Error != nil {
 		return nil, res.Error
 	}
 	if res.RowsAffected == 0 {
-		return nil, errors.New("no container templates were retrieved")
+		db.logger.WithField("component", "getContainerTemplates").Warnln("no container templates were retrieved")
 	}
 
 	return containers, nil
 }
 
-func (db *database) getContainerById(id int) (*tables.Container, error) {
-	var container *tables.Container
-	res := db.Model(&tables.Container{}).Where("id = ?", id).Find(container)
+func (db *database) getContainerById(id int) (*tables.ContainerTable, error) {
+	var container *tables.ContainerTable
+	res := db.Preload(clause.Associations).Preload("Envs.Selects").Find(container, "id = ?", id)
 	if res.Error != nil {
 		return nil, res.Error
 	}
 	if res.RowsAffected == 0 {
-		return nil, errors.New("no container template was found")
+		db.logger.WithFields(logrus.Fields{
+			"component": "getContainerById",
+			"id":        id,
+		}).Warnln("no container template was found")
+		return nil, nil
 	}
 
 	return container, nil
+}
+
+func (db *database) AddContainerTemplates(containers []templates.Container) {
+	for _, c := range containers {
+		sqlContainer := utils.JSONContainerToSQL(c)
+
+		if err := db.Where("title = ?", sqlContainer.Title).FirstOrCreate(&sqlContainer).Error; err != nil {
+			db.logger.WithError(err).WithFields(logrus.Fields{
+				"component":       "AddContainerTemplates",
+				"container-title": sqlContainer.Title,
+			}).Errorln("failed to insert container in database")
+		}
+	}
 }
