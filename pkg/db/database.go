@@ -9,6 +9,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+	"gorm.io/gorm/schema"
 )
 
 type Database interface {
@@ -32,12 +33,12 @@ func NewDB(logger logrus.FieldLogger) (Database, error) {
 		return nil, errors.New("logger is mandatory")
 	}
 
-	db, err := gorm.Open(sqlite.Open("dev.db"))
+	db, err := gorm.Open(sqlite.Open("dev.db"), &gorm.Config{
+		NamingStrategy: schema.NamingStrategy{
+			SingularTable: true,
+		},
+	})
 	if err != nil {
-		return nil, err
-	}
-
-	if err := db.AutoMigrate(&tables.Compose{}, &tables.Container{}, &tables.Stack{}); err != nil {
 		return nil, err
 	}
 
