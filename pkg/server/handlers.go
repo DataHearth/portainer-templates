@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
-	"path"
 
 	"github.com/datahearth/portainer-templates/pkg/db/templates"
 	"github.com/datahearth/portainer-templates/pkg/utils"
@@ -87,24 +86,25 @@ func (srv *server) getTemplateById(rw http.ResponseWriter, r *http.Request) {
 func (srv *server) loadFromFile(rw http.ResponseWriter, r *http.Request) {
 	logger := srv.logger.WithField("component", "loadFromFile")
 
-	pwd, err := os.Getwd()
-	if err != nil {
-		logger.WithError(err).Errorln("failed to get current working directory")
-		rw.WriteHeader(http.StatusInternalServerError)
+	templateFile := os.Getenv("TEMPLATE_FILE")
+	if templateFile == "" {
+		logger.Errorln("Environment variable TEMPLATE_FILE not provided")
+		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	templatesPath := path.Join(pwd, "templates.json")
-	b, err := ioutil.ReadFile(templatesPath)
+	logger = logger.WithField("path", templateFile)
+
+	b, err := ioutil.ReadFile(templateFile)
 	if err != nil {
-		logger.WithError(err).WithField("path", templatesPath).Errorln("failed to read templates file")
+		logger.WithError(err).Errorln("failed to read templates file")
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	jsonTemplates := templates.Templates{}
 	if err := json.Unmarshal(b, &jsonTemplates); err != nil {
-		logger.WithError(err).WithField("path", templatesPath).Errorln("failed unmarshal templates data")
+		logger.WithError(err).Errorln("failed unmarshal templates data")
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -114,12 +114,12 @@ func (srv *server) loadFromFile(rw http.ResponseWriter, r *http.Request) {
 		case 1:
 			var container templates.Container
 			if err := mapstructure.Decode(t, &container); err != nil {
-				logger.WithError(err).WithField("path", templatesPath).Errorf("failed to insert container data at index %d", i)
+				logger.WithError(err).Errorf("failed to insert container data at index %d", i)
 				rw.WriteHeader(http.StatusInternalServerError)
 				return
 			}
 			if err := srv.db.AddContainerTemplate(container); err != nil {
-				logger.WithError(err).WithField("path", templatesPath).Errorf("failed to insert container data at index %d", i)
+				logger.WithError(err).Errorf("failed to insert container data at index %d", i)
 				rw.WriteHeader(http.StatusInternalServerError)
 				return
 			}
@@ -129,13 +129,13 @@ func (srv *server) loadFromFile(rw http.ResponseWriter, r *http.Request) {
 		case 2:
 			var stack templates.Stack
 			if err := mapstructure.Decode(t, &stack); err != nil {
-				logger.WithError(err).WithField("path", templatesPath).Errorf("failed to decode stack data at index %d", i)
+				logger.WithError(err).Errorf("failed to decode stack data at index %d", i)
 				rw.WriteHeader(http.StatusInternalServerError)
 				return
 			}
 
 			if err := srv.db.AddStackTemplate(stack); err != nil {
-				logger.WithError(err).WithField("path", templatesPath).Errorf("failed to insert stack data at index %d", i)
+				logger.WithError(err).Errorf("failed to insert stack data at index %d", i)
 				rw.WriteHeader(http.StatusInternalServerError)
 				return
 			}
@@ -145,12 +145,12 @@ func (srv *server) loadFromFile(rw http.ResponseWriter, r *http.Request) {
 		case 3:
 			var compose templates.Compose
 			if err := mapstructure.Decode(t, &compose); err != nil {
-				logger.WithError(err).WithField("path", templatesPath).Errorf("failed to decode compose data at index %d", i)
+				logger.WithError(err).Errorf("failed to decode compose data at index %d", i)
 				rw.WriteHeader(http.StatusInternalServerError)
 				return
 			}
 			if err := srv.db.AddComposeTemplate(compose); err != nil {
-				logger.WithError(err).WithField("path", templatesPath).Errorf("failed to insert compose data at index %d", i)
+				logger.WithError(err).Errorf("failed to insert compose data at index %d", i)
 				rw.WriteHeader(http.StatusInternalServerError)
 				return
 			}
@@ -158,7 +158,7 @@ func (srv *server) loadFromFile(rw http.ResponseWriter, r *http.Request) {
 			continue
 
 		default:
-			logger.WithField("path", templatesPath).Errorf("invalid data type. Please check your data at index %d\n", i)
+			logger.Errorf("invalid data type. Please check your data at index %d\n", i)
 			rw.WriteHeader(http.StatusBadRequest)
 			return
 		}

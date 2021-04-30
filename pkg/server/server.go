@@ -2,6 +2,7 @@ package server
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/datahearth/portainer-templates/pkg/db"
@@ -10,7 +11,7 @@ import (
 )
 
 type Server interface {
-	Start(string) error
+	Start() error
 	RegisterHandlers() error
 	getTemplateById(http.ResponseWriter, *http.Request)
 	getAllTemplates(http.ResponseWriter, *http.Request)
@@ -18,39 +19,44 @@ type Server interface {
 }
 
 type server struct {
-	logger logrus.FieldLogger
-	router *mux.Router
-	db     db.Database
+	logger  logrus.FieldLogger
+	router  *mux.Router
+	db      db.Database
+	address string
 }
 
-func NewServer(logger logrus.FieldLogger, database db.Database) (Server, error) {
+func NewServer(logger logrus.FieldLogger, database db.Database, address, port string) (Server, error) {
 	if logger == nil {
 		return nil, errors.New("logger is mandatory")
 	}
 	if database == nil {
 		return nil, errors.New("database is mandatory")
 	}
+	if port == "" {
+		return nil, errors.New("port is mandatory")
+	}
 
 	return &server{
-		router: mux.NewRouter(),
-		logger: logger.WithField("pkg", "server"),
-		db:     database,
+		router:  mux.NewRouter(),
+		logger:  logger.WithField("pkg", "server"),
+		db:      database,
+		address: fmt.Sprintf("%s:%s", address, port),
 	}, nil
 }
 
-func (s *server) Start(port string) error {
-	s.logger.Infof("Server listening on port %s", port)
-	if err := http.ListenAndServe(port, s.router); err != nil {
+func (srv *server) Start() error {
+	srv.logger.Infof("Server listening on %s", srv.address)
+	if err := http.ListenAndServe(srv.address, srv.router); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (s *server) RegisterHandlers() error {
-	s.router.HandleFunc("/templates", s.getAllTemplates).Methods("GET")
-	s.router.HandleFunc("/templates/{type}/{id}", s.getTemplateById).Methods("GET")
-	s.router.HandleFunc("/templates/load", s.loadFromFile).Methods("GET")
+func (srv *server) RegisterHandlers() error {
+	srv.router.HandleFunc("/templates", srv.getAllTemplates).Methods("GET")
+	srv.router.HandleFunc("/templates/{type}/{id}", srv.getTemplateById).Methods("GET")
+	srv.router.HandleFunc("/templates/load", srv.loadFromFile).Methods("GET")
 
 	return nil
 }

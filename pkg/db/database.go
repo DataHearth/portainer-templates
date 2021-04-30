@@ -2,6 +2,7 @@ package db
 
 import (
 	"errors"
+	"os"
 	"strconv"
 	"sync"
 
@@ -40,7 +41,12 @@ func NewDB(logger logrus.FieldLogger) (Database, error) {
 		return nil, errors.New("logger is mandatory")
 	}
 
-	db, err := gorm.Open(sqlite.Open("dev.db"), &gorm.Config{
+	dbLocation := "portainer-templates.db"
+	if os.Getenv("DB_FILE") != "" {
+		dbLocation = os.Getenv("DB_FILE")
+	}
+
+	db, err := gorm.Open(sqlite.Open(dbLocation), &gorm.Config{
 		NamingStrategy: schema.NamingStrategy{
 			SingularTable: true,
 		},
@@ -56,42 +62,6 @@ func NewDB(logger logrus.FieldLogger) (Database, error) {
 	); err != nil {
 		return nil, err
 	}
-
-	// db.Create(&tables.StackTable{
-	// 	Type:        1,
-	// 	Title:       "SUP HERE",
-	// 	Description: "some desc",
-	// 	Note:        "some notes",
-	// 	Categories: []tables.StackCategory{
-	// 		{
-	// 			Name: "zefhnzef",
-	// 		},
-	// 	},
-	// 	Platform: "some plateform",
-	// 	Logo:     "some logo",
-	// 	Repository: tables.StackRepository{
-	// 		URL:       " some url",
-	// 		Stackfile: " some stackfile",
-	// 	},
-	// 	Envs: []tables.StackEnv{
-	// 		{
-	// 			Name:        " NOPE IM HERE SLUT",
-	// 			Label:       "some label",
-	// 			Description: "descpritoger",
-	// 			Default:     " fzefzef",
-	// 			Preset:      "fzefzef",
-	// 			Selects: []tables.StackSelect{
-	// 				{
-	// 					Text:    " éfezfze",
-	// 					Value:   " IM HERE BITCH!",
-	// 					Default: false,
-	// 				},
-	// 			},
-	// 		},
-	// 	},
-	// 	AdministratorOnly: false,
-	// 	Name:              " some name",
-	// })
 
 	return &database{
 		DB:     db,
