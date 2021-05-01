@@ -12,6 +12,7 @@ You can add new templates but triggering a special endpoint and it will be persi
 - `GET /templates/{type}/{id}` - Get a special template by its database id and type (`container`, `compose`, `stack`)
 - `POST /templates/load` - Load templates from a `JSON` file
 - `POST /templates/insert` - Insert templates from a `JSON` body
+- `/metrics` - Prometheus metrics
 
 *note*: To add templates, you need to pass a valide JSON format (obviously) but also a valid template format
 e.g:
@@ -64,4 +65,3 @@ Replace `latest` by the desired version.
 - Delete templates (by id, by title)
 - Update template (by id, by title)
 - Add more logs
-- Add Prometheus
