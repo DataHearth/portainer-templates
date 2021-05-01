@@ -15,12 +15,12 @@ import (
 )
 
 type Database interface {
-	getContainerTemplates() ([]tables.ContainerTable, error)
-	getContainerById(int) (*tables.ContainerTable, error)
-	getComposeTemplates() ([]tables.ComposeTable, error)
-	getComposeById(int) (*tables.ComposeTable, error)
-	getStackTemplates() ([]tables.StackTable, error)
-	getStackById(int) (*tables.StackTable, error)
+	GetContainerTemplates() ([]tables.ContainerTable, error)
+	GetContainerById(int) (*tables.ContainerTable, error)
+	GetComposeTemplates() ([]tables.ComposeTable, error)
+	GetComposeById(int) (*tables.ComposeTable, error)
+	GetStackTemplates() ([]tables.StackTable, error)
+	GetStackById(int) (*tables.StackTable, error)
 	AddStackTemplates([]templates.Stack) error
 	AddComposeTemplates([]templates.Compose) error
 	AddContainerTemplates([]templates.Container) error
@@ -82,7 +82,7 @@ func (db *database) GetAllTemplates() ([]tables.ContainerTable, []tables.StackTa
 	wg.Add(3)
 	go func() {
 		var e error
-		composes, e = db.getComposeTemplates()
+		composes, e = db.GetComposeTemplates()
 		if e != nil {
 			err <- e
 		} else {
@@ -92,7 +92,7 @@ func (db *database) GetAllTemplates() ([]tables.ContainerTable, []tables.StackTa
 	}()
 	go func() {
 		var e error
-		stacks, e = db.getStackTemplates()
+		stacks, e = db.GetStackTemplates()
 		if e != nil {
 			err <- e
 		} else {
@@ -102,7 +102,7 @@ func (db *database) GetAllTemplates() ([]tables.ContainerTable, []tables.StackTa
 	}()
 	go func() {
 		var e error
-		containers, e = db.getContainerTemplates()
+		containers, e = db.GetContainerTemplates()
 		if e != nil {
 			err <- e
 		} else {
@@ -136,19 +136,19 @@ func (db *database) GetTemplateById(templateType, id string) (interface{}, error
 
 	switch templateType {
 	case "container":
-		container, err := db.getContainerById(ID)
+		container, err := db.GetContainerById(ID)
 		if err != nil {
 			return nil, err
 		}
 		template = container
 	case "stack":
-		stack, err := db.getStackById(ID)
+		stack, err := db.GetStackById(ID)
 		if err != nil {
 			return nil, err
 		}
 		template = stack
 	case "compose":
-		compose, err := db.getComposeById(ID)
+		compose, err := db.GetComposeById(ID)
 		if err != nil {
 			return nil, err
 		}

@@ -11,22 +11,73 @@ import (
 
 func (h *handler) GetAllTemplates(rw http.ResponseWriter, r *http.Request) {
 	logger := h.logger.WithField("component", "GetAllTemplates")
+	templateType := r.URL.Query().Get("type")
+	var body []byte
 
-	containers, stacks, composes, err := h.db.GetAllTemplates()
-	if err != nil {
-		logger.WithError(err).Errorln("failed to get all templates")
-		rw.WriteHeader(http.StatusInternalServerError)
-		return
+	if templateType != "" {
+		switch templateType {
+		case "container":
+			containers, err := h.db.GetContainerTemplates()
+			if err != nil {
+				logger.WithError(err).Errorln("failed to get container templates")
+				rw.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+			body, err = utils.FormatBody(containers, nil, nil)
+			if err != nil {
+				logger.WithError(err).Errorln("failed to format response body")
+				rw.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+		case "compose":
+			composes, err := h.db.GetComposeTemplates()
+			if err != nil {
+				logger.WithError(err).Errorln("failed to get compose templates")
+				rw.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+			body, err = utils.FormatBody(nil, nil, composes)
+			if err != nil {
+				logger.WithError(err).Errorln("failed to format response body")
+				rw.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+		case "stack":
+			stacks, err := h.db.GetStackTemplates()
+			if err != nil {
+				logger.WithError(err).Errorln("failed to get stack templates")
+				rw.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+			body, err = utils.FormatBody(nil, stacks, nil)
+			if err != nil {
+				logger.WithError(err).Errorln("failed to format response body")
+				rw.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+		default:
+			logger.Errorln("invalid templates type")
+			rw.WriteHeader(http.StatusBadRequest)
+			return
+		}
+	} else {
+		containers, stacks, composes, err := h.db.GetAllTemplates()
+		if err != nil {
+			logger.WithError(err).Errorln("failed to get all templates")
+			rw.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		body, err = utils.FormatBody(containers, stacks, composes)
+		if err != nil {
+			logger.WithError(err).Errorln("error while formatting body")
+			rw.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 	}
 
-	b, err := utils.FormatBody(containers, stacks, composes)
-	if err != nil {
-		logger.WithError(err).Errorln("error while formatting body")
-		rw.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	if _, err = rw.Write(b); err != nil {
+	rw.Header().Add("content-type", "application/json")
+	if _, err := rw.Write(body); err != nil {
 		logger.WithError(err).Errorln("failed to write response body")
 	}
 }
@@ -74,6 +125,7 @@ func (h *handler) GetTemplateById(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	rw.Header().Add("content-type", "application/json")
 	if _, err = rw.Write(b); err != nil {
 		logger.WithError(err).Errorln("failed to write response body")
 	}

@@ -8,7 +8,7 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func (db *database) getContainerTemplates() ([]tables.ContainerTable, error) {
+func (db *database) GetContainerTemplates() ([]tables.ContainerTable, error) {
 	containers := []tables.ContainerTable{}
 	res := db.Preload(clause.Associations).Preload("Envs.Selects").Find(&containers)
 	if res.Error != nil {
@@ -21,7 +21,7 @@ func (db *database) getContainerTemplates() ([]tables.ContainerTable, error) {
 	return containers, nil
 }
 
-func (db *database) getContainerById(id int) (*tables.ContainerTable, error) {
+func (db *database) GetContainerById(id int) (*tables.ContainerTable, error) {
 	var container *tables.ContainerTable
 	res := db.Preload(clause.Associations).Preload("Envs.Selects").Find(container, "id = ?", id)
 	if res.Error != nil {

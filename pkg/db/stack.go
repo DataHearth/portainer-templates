@@ -8,7 +8,7 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func (db *database) getStackTemplates() ([]tables.StackTable, error) {
+func (db *database) GetStackTemplates() ([]tables.StackTable, error) {
 	stack := []tables.StackTable{}
 	res := db.Preload(clause.Associations).Preload("Envs.Selects").Find(&stack)
 	if res.Error != nil {
@@ -22,7 +22,7 @@ func (db *database) getStackTemplates() ([]tables.StackTable, error) {
 	return stack, nil
 }
 
-func (db *database) getStackById(id int) (*tables.StackTable, error) {
+func (db *database) GetStackById(id int) (*tables.StackTable, error) {
 	var stack *tables.StackTable
 	res := db.Preload(clause.Associations).Preload("Envs.Selects").Find(stack, "id = ?", id)
 	if res.Error != nil {

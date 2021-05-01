@@ -8,7 +8,7 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func (db *database) getComposeTemplates() ([]tables.ComposeTable, error) {
+func (db *database) GetComposeTemplates() ([]tables.ComposeTable, error) {
 	compose := []tables.ComposeTable{}
 	res := db.Preload(clause.Associations).Preload("Envs.Selects").Find(&compose)
 	if res.Error != nil {
@@ -22,7 +22,7 @@ func (db *database) getComposeTemplates() ([]tables.ComposeTable, error) {
 	return compose, nil
 }
 
-func (db *database) getComposeById(id int) (*tables.ComposeTable, error) {
+func (db *database) GetComposeById(id int) (*tables.ComposeTable, error) {
 	var compose *tables.ComposeTable
 	res := db.Preload(clause.Associations).Preload("Envs.Selects").Find(compose, "id = ?", id)
 	if res.Error != nil {

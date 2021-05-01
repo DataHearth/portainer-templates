@@ -61,7 +61,6 @@ Replace `latest` by the desired version.
 
 ## TO-DO
 
-- Get templates by `type`
 - Delete templates (by id, by title)
 - Update template (by id, by title)
 - Add more logs
