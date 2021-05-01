@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/datahearth/portainer-templates/pkg/db"
+	"github.com/datahearth/portainer-templates/pkg/server/handlers"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 )
@@ -54,6 +55,7 @@ func (srv *server) Start() error {
 }
 
 func (srv *server) RegisterHandlers() error {
+	srv.router.Use(handlers.HTTPLogger)
 	srv.router.HandleFunc("/templates", srv.getAllTemplates).Methods("GET")
 	srv.router.HandleFunc("/templates/{type}/{id}", srv.getTemplateById).Methods("GET")
 	srv.router.HandleFunc("/templates/load", srv.loadFromFile).Methods("GET")
