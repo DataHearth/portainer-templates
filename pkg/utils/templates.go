@@ -2,10 +2,12 @@ package utils
 
 import (
 	"encoding/json"
+	"fmt"
 	"sync"
 
 	"github.com/datahearth/portainer-templates/pkg/db/tables"
 	"github.com/datahearth/portainer-templates/pkg/db/templates"
+	"github.com/mitchellh/mapstructure"
 )
 
 // todo: add waitgroups for each func
@@ -469,4 +471,47 @@ func SQLComposeToJSON(compose tables.ComposeTable) templates.Compose {
 		AdministratorOnly: compose.AdministratorOnly,
 		Name:              compose.Name,
 	}
+}
+
+func ReadJSONTemplates(t templates.Templates) ([]templates.Container, []templates.Compose, []templates.Stack, error) {
+	containers, composes, stacks := []templates.Container{}, []templates.Compose{}, []templates.Stack{}
+
+	for i, t := range t.Templates {
+		switch int(t.(map[string]interface{})["type"].(float64)) {
+		case 1:
+			var container templates.Container
+			if err := mapstructure.Decode(t, &container); err != nil {
+				return nil, nil, nil, fmt.Errorf("failed to decode container at index %d", i)
+			}
+
+			containers = append(containers, container)
+
+			continue
+
+		case 2:
+			var stack templates.Stack
+			if err := mapstructure.Decode(t, &stack); err != nil {
+				return nil, nil, nil, fmt.Errorf("failed to decode stack at index %d", i)
+			}
+
+			stacks = append(stacks, stack)
+
+			continue
+
+		case 3:
+			var compose templates.Compose
+			if err := mapstructure.Decode(t, &compose); err != nil {
+				return nil, nil, nil, fmt.Errorf("failed to decode compose at index %d", i)
+			}
+
+			composes = append(composes, compose)
+
+			continue
+
+		default:
+			return nil, nil, nil, fmt.Errorf("invalid template at index %d", i)
+		}
+	}
+
+	return containers, composes, stacks, nil
 }
