@@ -9,8 +9,18 @@ You can add new templates but triggering a special endpoint and it will be persi
 ## Endpoints
 
 - `GET /templates` - Portainer endpoint for all templates
-- `GET /templates/load` - Load templates from a `JSON` file
 - `GET /templates/{type}/{id}` - Get a special template by its database id and type (`container`, `compose`, `stack`)
+- `POST /templates/load` - Load templates from a `JSON` file
+- `POST /templates/insert` - Insert templates from a `JSON` body
+
+*note*: To add templates, you need to pass a valide JSON format (obviously) but also a valid template format
+e.g:
+```
+{
+	"version": "2",
+	"templates": [{...}]
+}
+```
 
 ## Environment variables
 
@@ -51,7 +61,6 @@ Replace `latest` by the desired version.
 
 ## TO-DO
 
-- Add templates through `HTTP` (one by one, array of templates)
 - Get templates by `type`
 - Delete templates (by id, by title)
 - Update template (by id, by title)
